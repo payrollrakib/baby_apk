@@ -1,0 +1,239 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated parent and baby profile metadata for 0-12 month tracking.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase user UID matching request.auth.uid."
+        },
+        "babyName": {
+          "type": "string",
+          "description": "Baby's name or nickname in Bengali or English (1-60 chars)."
+        },
+        "babyBirthDateMillis": {
+          "type": "integer",
+          "description": "Baby's birth date in epoch milliseconds."
+        },
+        "babyGender": {
+          "type": "string",
+          "enum": ["BOY", "GIRL", "UNSPECIFIED"],
+          "description": "Baby's gender tag."
+        },
+        "babyAgeMonths": {
+          "type": "integer",
+          "description": "Selected or computed baby age in months (0-12)."
+        },
+        "starterSeeded": {
+          "type": "boolean",
+          "description": "Whether starter 0-12 month Bengali tasks have been seeded."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when created (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when last updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "babyName",
+        "babyBirthDateMillis",
+        "babyGender",
+        "babyAgeMonths",
+        "starterSeeded",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "TodoItem": {
+      "title": "TodoItem",
+      "description": "0-12 month baby care, vaccination, or milestone to-do task.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase UID."
+        },
+        "title": {
+          "type": "string",
+          "description": "Task title in Bengali (1-200 chars)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional additional instructions or notes (0-500 chars)."
+        },
+        "ageStage": {
+          "type": "string",
+          "enum": ["ALL", "M0_3", "M4_6", "M7_9", "M10_12"],
+          "description": "Age stage bucket for the 0-1 year journey."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["VACCINE", "FEEDING", "HEALTH", "CARE", "SHOPPING"],
+          "description": "Task category."
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Whether the task is completed."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "notes",
+        "ageStage",
+        "category",
+        "completed",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "BabyPhoto": {
+      "title": "BabyPhoto",
+      "description": "Metadata for a baby memory picture stored locally in app internal storage.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase UID."
+        },
+        "title": {
+          "type": "string",
+          "description": "Memory title (1-120 chars)."
+        },
+        "caption": {
+          "type": "string",
+          "description": "Memory story or caption (0-500 chars)."
+        },
+        "ageMonth": {
+          "type": "integer",
+          "description": "Baby's age in months when photo was taken (0-12)."
+        },
+        "milestoneTag": {
+          "type": "string",
+          "description": "Short milestone label (0-60 chars)."
+        },
+        "localFileName": {
+          "type": "string",
+          "description": "Relative filename in app filesDir/baby_photos."
+        },
+        "dateLabel": {
+          "type": "string",
+          "description": "Human-readable Bengali date label (0-40 chars)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "caption",
+        "ageMonth",
+        "milestoneTag",
+        "localFileName",
+        "dateLabel",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "BabyNote": {
+      "title": "BabyNote",
+      "description": "Parenting journal note, doctor observation, or feeding/sleep log.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase UID."
+        },
+        "title": {
+          "type": "string",
+          "description": "Note title (1-150 chars)."
+        },
+        "content": {
+          "type": "string",
+          "description": "Detailed note body (1-3000 chars)."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["DOCTOR", "FEEDING", "SLEEP", "MILESTONE", "GENERAL"],
+          "description": "Note category."
+        },
+        "ageMonth": {
+          "type": "integer",
+          "description": "Baby age in months (0-12)."
+        },
+        "pinned": {
+          "type": "boolean",
+          "description": "Whether the note is pinned to the top."
+        },
+        "localImageFileName": {
+          "type": "string",
+          "description": "Optional attached local photo filename."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "content",
+        "category",
+        "ageMonth",
+        "pinned",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User and baby profile document."
+    },
+    "/users/{userId}/todos/{todoId}": {
+      "schema": { "$ref": "#/entities/TodoItem" },
+      "description": "Per-user 0-12 month baby care to-do items."
+    },
+    "/users/{userId}/photos/{photoId}": {
+      "schema": { "$ref": "#/entities/BabyPhoto" },
+      "description": "Per-user baby photo memories metadata."
+    },
+    "/users/{userId}/notes/{noteId}": {
+      "schema": { "$ref": "#/entities/BabyNote" },
+      "description": "Per-user parenting notes and logs."
+    }
+  }
+}

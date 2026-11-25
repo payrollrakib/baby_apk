@@ -1,0 +1,6 @@
+{
+  "name": "সোনামণি",
+  "description": "০ থেকে ১ বছরের শিশুর জন্য বাংলায় টাস্ক লিস্ট, ছবি ও স্মৃতি সংরক্ষণ, নোট এবং প্যারেন্টিং গাইডলাইন অ্যাপ।",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

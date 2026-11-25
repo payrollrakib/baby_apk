@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">সোনামণি</string>
+    <string name="app_tagline">০ থেকে ১ বছরের শিশুর যত্ন, টাস্ক, স্মৃতি ও গাইডলাইন</string>
+    <string name="sign_in_with_google">Google দিয়ে সাইন-ইন করুন</string>
+    <string name="sign_in_welcome_title">সোনামণির প্রথম বছর হোক সুন্দর ও গোছানো</string>
+    <string name="sign_in_welcome_subtitle">টিকা ও দৈনন্দিন করণীয়, প্রিয় ছবির অ্যালবাম, ডাক্তারের নোট এবং বয়সভিত্তিক প্যারেন্টিং গাইডলাইন—সব একসাথে বাংলায়।</string>
+    <string name="sign_out">সাইন আউট</string>
+    <string name="tab_todos">করণীয়</string>
+    <string name="tab_photos">ছবি</string>
+    <string name="tab_notes">নোট</string>
+    <string name="tab_guidelines">গাইডলাইন</string>
+    <string name="add_todo_label">নতুন কাজ</string>
+    <string name="add_photo_label">ছবি যোগ করুন</string>
+    <string name="add_note_label">নতুন নোট</string>
+    <string name="edit_baby_profile">শিশুর তথ্য</string>
+    <string name="save">সংরক্ষণ করুন</string>
+    <string name="cancel">বাতিল</string>
+    <string name="delete">মুছে ফেলুন</string>
+    <string name="edit">সম্পাদনা</string>
+    <string name="retry">আবার চেষ্টা করুন</string>
+</resources>

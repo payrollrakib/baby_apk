@@ -1,0 +1,247 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidUserProfile(data) {
+      return data.userId is string &&
+             data.userId == request.auth.uid &&
+             data.babyName is string &&
+             data.babyName.size() >= 1 &&
+             data.babyName.size() <= 60 &&
+             data.babyBirthDateMillis is int &&
+             data.babyBirthDateMillis >= 0 &&
+             data.babyGender is string &&
+             data.babyGender in ['BOY', 'GIRL', 'UNSPECIFIED'] &&
+             data.babyAgeMonths is int &&
+             data.babyAgeMonths >= 0 &&
+             data.babyAgeMonths <= 12 &&
+             data.starterSeeded is bool &&
+             data.createdAt is timestamp &&
+             data.createdAt <= request.time &&
+             data.updatedAt is timestamp &&
+             data.updatedAt <= request.time;
+    }
+
+    function isValidTodoItem(data) {
+      return data.userId is string &&
+             data.userId == request.auth.uid &&
+             data.title is string &&
+             data.title.size() >= 1 &&
+             data.title.size() <= 200 &&
+             data.notes is string &&
+             data.notes.size() <= 500 &&
+             data.ageStage is string &&
+             data.ageStage in ['ALL', 'M0_3', 'M4_6', 'M7_9', 'M10_12'] &&
+             data.category is string &&
+             data.category in ['VACCINE', 'FEEDING', 'HEALTH', 'CARE', 'SHOPPING'] &&
+             data.completed is bool &&
+             data.createdAt is timestamp &&
+             data.createdAt <= request.time &&
+             data.updatedAt is timestamp &&
+             data.updatedAt <= request.time;
+    }
+
+    function isValidBabyPhoto(data) {
+      return data.userId is string &&
+             data.userId == request.auth.uid &&
+             data.title is string &&
+             data.title.size() >= 1 &&
+             data.title.size() <= 120 &&
+             data.caption is string &&
+             data.caption.size() <= 500 &&
+             data.ageMonth is int &&
+             data.ageMonth >= 0 &&
+             data.ageMonth <= 12 &&
+             data.milestoneTag is string &&
+             data.milestoneTag.size() <= 60 &&
+             data.localFileName is string &&
+             data.localFileName.size() >= 1 &&
+             data.localFileName.size() <= 160 &&
+             data.dateLabel is string &&
+             data.dateLabel.size() <= 40 &&
+             data.createdAt is timestamp &&
+             data.createdAt <= request.time &&
+             data.updatedAt is timestamp &&
+             data.updatedAt <= request.time;
+    }
+
+    function isValidBabyNote(data) {
+      return data.userId is string &&
+             data.userId == request.auth.uid &&
+             data.title is string &&
+             data.title.size() >= 1 &&
+             data.title.size() <= 150 &&
+             data.content is string &&
+             data.content.size() >= 1 &&
+             data.content.size() <= 3000 &&
+             data.category is string &&
+             data.category in ['DOCTOR', 'FEEDING', 'SLEEP', 'MILESTONE', 'GENERAL'] &&
+             data.ageMonth is int &&
+             data.ageMonth >= 0 &&
+             data.ageMonth <= 12 &&
+             data.pinned is bool &&
+             (!('localImageFileName' in data) || (
+               data.localImageFileName is string &&
+               data.localImageFileName.size() >= 1 &&
+               data.localImageFileName.size() <= 160
+             )) &&
+             data.createdAt is timestamp &&
+             data.createdAt <= request.time &&
+             data.updatedAt is timestamp &&
+             data.updatedAt <= request.time;
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false;
+
+      allow create: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'babyName', 'babyBirthDateMillis', 'babyGender',
+                         'babyAgeMonths', 'starterSeeded', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'babyName', 'babyBirthDateMillis', 'babyGender',
+                         'babyAgeMonths', 'starterSeeded', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       (
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'babyName', 'babyBirthDateMillis', 'babyGender', 'babyAgeMonths', 'updatedAt'
+                         ]) ||
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'starterSeeded', 'updatedAt'
+                         ])
+                       );
+
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      match /todos/{todoId} {
+        allow get: if isOwner(userId) && isValidId(todoId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(todoId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'title', 'notes', 'ageStage',
+                           'category', 'completed', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'title', 'notes', 'ageStage',
+                           'category', 'completed', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidTodoItem(incoming());
+
+        allow update: if isOwner(userId) &&
+                         isValidId(todoId) &&
+                         isValidTodoItem(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         (
+                           incoming().diff(existing()).affectedKeys().hasOnly([
+                             'completed', 'updatedAt'
+                           ]) ||
+                           incoming().diff(existing()).affectedKeys().hasOnly([
+                             'title', 'notes', 'ageStage', 'category', 'completed', 'updatedAt'
+                           ])
+                         );
+
+        allow delete: if isOwner(userId) && isValidId(todoId);
+      }
+
+      match /photos/{photoId} {
+        allow get: if isOwner(userId) && isValidId(photoId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(photoId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'title', 'caption', 'ageMonth', 'milestoneTag',
+                           'localFileName', 'dateLabel', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'title', 'caption', 'ageMonth', 'milestoneTag',
+                           'localFileName', 'dateLabel', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidBabyPhoto(incoming());
+
+        allow update: if isOwner(userId) &&
+                         isValidId(photoId) &&
+                         isValidBabyPhoto(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'title', 'caption', 'ageMonth', 'milestoneTag', 'dateLabel', 'updatedAt'
+                         ]);
+
+        allow delete: if isOwner(userId) && isValidId(photoId);
+      }
+
+      match /notes/{noteId} {
+        allow get: if isOwner(userId) && isValidId(noteId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(noteId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'title', 'content', 'category',
+                           'ageMonth', 'pinned', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'title', 'content', 'category', 'ageMonth',
+                           'pinned', 'localImageFileName', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidBabyNote(incoming());
+
+        allow update: if isOwner(userId) &&
+                         isValidId(noteId) &&
+                         isValidBabyNote(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         (
+                           incoming().diff(existing()).affectedKeys().hasOnly([
+                             'pinned', 'updatedAt'
+                           ]) ||
+                           incoming().diff(existing()).affectedKeys().hasOnly([
+                             'title', 'content', 'category', 'ageMonth',
+                             'pinned', 'localImageFileName', 'updatedAt'
+                           ])
+                         );
+
+        allow delete: if isOwner(userId) && isValidId(noteId);
+      }
+    }
+  }
+}
